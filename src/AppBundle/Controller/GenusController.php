@@ -44,7 +44,8 @@ class GenusController extends Controller
      */
     public function listAction()
     {
-        $genuses = $this->getDoctrine()->getRepository('AppBundle:Genus')->findAllPublishedOrderedBySize();
+        $genuses = $this->getDoctrine()->getRepository('AppBundle:Genus')
+            ->findAllPublishedOrderedByRecentlyActive();
         
         return $this->render('genus/list.html.twig', [
             'genuses' => $genuses
@@ -62,9 +63,8 @@ class GenusController extends Controller
             throw $this->createNotFoundException('genus not found');
         }
 
-        $recentNotes = $genus->getNotes()->filter(function (GenusNote $note){
-            return $note->getCreatedAt() > new \DateTime('-3 months');
-        });
+        $recentNotes = $this->getDoctrine()->getRepository('AppBundle:GenusNote')
+            ->findAllRecentNotesForGenus($genus);
         //todo
 //        $cache = $this->get('doctrine_cache.providers.my_markdown_cache');
 //        $key = md5($funFact);
