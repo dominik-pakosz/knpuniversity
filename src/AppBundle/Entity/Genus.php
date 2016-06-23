@@ -4,6 +4,7 @@ namespace AppBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="AppBundle\Repository\GenusRepository")
@@ -19,16 +20,21 @@ class Genus
     private $id;
 
     /**
+     * @Assert\NotBlank
      * @ORM\Column(type="string")
      */
     private $name;
 
     /**
-     * @ORM\Column(type="string")
+     * @Assert\NotBlank()
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\SubFamily")
+     * @ORM\JoinColumn(nullable=false)
      */
     private $subFamily;
 
     /**
+     * @Assert\NotBlank()
+     * @Assert\Range(min=0, minMessage="Negative? Come on...")
      * @ORM\Column(type="integer")
      */
     private $spieciesCout;
@@ -49,6 +55,31 @@ class Genus
      */
     private $notes;
 
+    /**
+     * @Assert\NotBlank()
+     * @ORM\Column(type="datetime")
+     */
+    private $firstDiscoveredAt;
+
+    /**
+     * @return mixed
+     */
+    public function getFirstDiscoveredAt()
+    {
+        return $this->firstDiscoveredAt;
+    }
+
+    /**
+     * @param mixed $firstDiscoveredAt
+     */
+    public function setFirstDiscoveredAt(\DateTime $firstDiscoveredAt = null)
+    {
+        $this->firstDiscoveredAt = $firstDiscoveredAt;
+    }
+
+    /**
+     * Genus constructor.
+     */
     public function __construct()
     {
         $this->notes = new ArrayCollection();
@@ -89,7 +120,7 @@ class Genus
     /**
      * @param mixed $subFamily
      */
-    public function setSubFamily($subFamily)
+    public function setSubFamily(SubFamily $subFamily)
     {
         $this->subFamily = $subFamily;
     }
@@ -126,6 +157,9 @@ class Genus
         $this->funFact = $funFact;
     }
 
+    /**
+     * @return \DateTime
+     */
     public function getUpdatedAt()
     {
         return new \DateTime('-'.rand(0,100).' days');
