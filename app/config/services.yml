@@ -14,3 +14,6 @@ services:
             - { name: twig.extension }
         #arguments: ['@app.markdown_transformer']
         autowire: true
+    app.security.login_form_authenticator:
+        class: AppBundle\Security\FormLoginAuthenticator
+        autowire: true
