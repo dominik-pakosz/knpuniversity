@@ -16,12 +16,12 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
 
 class HashPasswordListener implements EventSubscriber
 {
-    private $encoder;
+    private $passwordEncoder;
 
-    public function __construct(UserPasswordEncoder $encoder)
+    public function __construct(UserPasswordEncoder $passwordEncoder)
     {
 
-        $this->encoder = $encoder;
+        $this->passwordEncoder = $passwordEncoder;
     }
 
     public function getSubscribedEvents()
@@ -33,12 +33,11 @@ class HashPasswordListener implements EventSubscriber
     {
         $entity = $args->getEntity();
 
-        if ($entity instanceof User) {
-            $this->encodedPassword($entity);
-        } else {
+        if (!$entity instanceof User) {
             return;
         }
 
+        $this->encodePassword($entity);
 
     }
 
@@ -46,18 +45,32 @@ class HashPasswordListener implements EventSubscriber
     {
         $entity = $args->getEntity();
 
-        if ($entity instanceof User) {
-            $this->encodedPassword($entity);
-        } else {
+        if (!$entity instanceof User) {
             return;
         }
 
+        $this->encodePassword($entity);
 
+        // necessary to force the update to see the change
+        $em = $args->getEntityManager();
+        $meta = $em->getClassMetadata(get_class($entity));
+        $em->getUnitOfWork()->recomputeSingleEntityChangeSet($meta, $entity);
     }
 
-    private function encodedPassword(User $entity)
+    /**
+     * @param User $entity
+     */
+    private function encodePassword(User $entity)
     {
-        $encoded = $this->encoder->encodePassword($entity, $entity->getPassword());
+        if (!$entity->getPlainPassword()) {
+            return;
+        }
+
+        $encoded = $this->passwordEncoder->encodePassword(
+            $entity,
+            $entity->getPlainPassword()
+        );
         $entity->setPassword($encoded);
     }
+
 }

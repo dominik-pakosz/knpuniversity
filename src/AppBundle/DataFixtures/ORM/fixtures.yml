@@ -19,3 +19,5 @@ AppBundle\Entity\GenusNote:
 AppBundle\Entity\User:
     user_{1..10}:
         email: pakosz.dominik+<current()>@gmail.com
+        plainPassword: dupa
+        roles: ['ROLE_ADMIN']
